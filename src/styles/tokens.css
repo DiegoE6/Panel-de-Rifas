@@ -1,0 +1,89 @@
+:root {
+  /* ================= Color =================
+     Fondo "Tinta": azul profundo que da sensación de evento nocturno.
+     El color de marca no es el suelo: es acento. */
+  --tinta-1:  #141A26;   /* centro del degradado del escenario */
+  --tinta-2:  #080B12;   /* orilla del degradado               */
+  --tinta-3:  #0B111C;   /* fondo del admin                    */
+
+  --sup-1: #131A27;      /* superficie elevada  */
+  --sup-2: #1A2333;      /* superficie hundida  */
+  --linea:     rgba(255,255,255,.10);
+  --linea-str: rgba(255,255,255,.18);
+
+  --texto:      #F2F3F7;
+  --texto-dim:  rgba(242,243,247,.62);
+  --texto-mute: rgba(242,243,247,.38);
+
+  --marca:      #8E2242;   /* acento de marca, aclarado para leer sobre tinta */
+  --marca-2:    #A62B50;
+  --oro:        #E8B54D;   /* único color de celebración */
+  --oro-soft:   #F6D38A;
+
+  --ok:     #3DBE8B;
+  --warn:   #E0A93C;
+  --peligro:#E8695F;
+
+  /* ================= Tipografía =================
+     Macro: display pesada para lo que se lee de lejos.
+     Micro: monospace para cifras y metadatos.
+     UI: una sola variable para todo lo demás. */
+  --display: 'Archivo Black', 'Arial Black', Impact, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  --ui: 'Outfit Variable', 'Outfit', ui-sans-serif, system-ui, 'Segoe UI', sans-serif;
+
+  --fs-xs:  12px;
+  --fs-sm:  13.5px;
+  --fs-md:  15px;
+  --fs-lg:  18px;
+  --fs-xl:  24px;
+  --fs-2xl: 32px;
+
+  /* Escenario: tamaños fluidos, se leen desde el fondo del salón */
+  --fs-evento: clamp(16px, 1.7vw, 26px);
+  --fs-regalo: clamp(26px, 3.4vw, 60px);
+  --fs-nombre: clamp(20px, 2.3vw, 40px);
+  --fs-cred:   clamp(15px, 1.5vw, 26px);
+  --fs-hero:   clamp(56px, 11vw, 176px);
+
+  --lh-display: .88;
+  --lh-tight: 1.05;
+  --lh-body: 1.6;
+  --measure: 65ch;
+
+  /* ================= Easing ================= */
+  --ease-out:    cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* ================= Duración =================
+     La UI se queda bajo 300ms. La rifa es la excepción deliberada. */
+  --d-press: 140ms;
+  --d-tip:   160ms;
+  --d-menu:  200ms;
+  --d-modal: 260ms;
+
+  --d-rifa-entrada: 600ms;
+  --d-rifa-total:   10000ms;
+
+  /* ================= Espacio y forma ================= */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 72px;
+
+  --r-sm: 4px; --r-md: 8px; --r-lg: 12px; --r-xl: 18px; --r-pill: 999px;
+
+  /* Sombras tintadas al fondo, no negro genérico */
+  --sombra-sm: 0 1px 2px rgba(4, 7, 14, .5);
+  --sombra-md: 0 8px 26px -8px rgba(4, 7, 14, .7);
+
+  /* ================= Capas ================= */
+  --z-base:    1;
+  --z-sticky: 10;
+  --z-rifa:   20;
+  --z-dialogo:30;
+  --z-flash:  40;
+  --z-confeti:50;
+
+  /* Grano: rompe la planitud del vector */
+  --grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+}

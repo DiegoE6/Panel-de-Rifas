@@ -1,0 +1,113 @@
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { margin: 0; min-height: 100%; }
+
+body {
+  background: var(--tinta-3);
+  color: var(--texto);
+  font-family: var(--ui);
+  font-size: var(--fs-md);
+  font-weight: 300;
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  margin: 0;
+  font-weight: 600;
+  line-height: var(--lh-tight);
+  letter-spacing: -0.02em;
+  text-wrap: balance;          /* sin palabras huérfanas en los títulos */
+}
+p { margin: 0; text-wrap: pretty; }
+img { max-width: 100%; }
+
+/* Gana a cualquier display de componente: .btn es inline-flex y sin esto
+   el atributo hidden no oculta nada. */
+[hidden] { display: none !important; }
+
+/* Cifras en columna: credenciales, folios, totales */
+.num, .table td.num, .stat__valor { font-variant-numeric: tabular-nums; }
+
+/* 100dvh y no 100vh: el viewport de iOS Safari cambia al hacer scroll */
+#app { display: flex; flex-direction: column; min-height: 100dvh; }
+
+/* ---------- Marca ----------
+   La marca y una etiqueta en monospace: aquí la tipografía es la estructura. */
+.marca { display: flex; align-items: center; gap: var(--sp-4); }
+
+/* SVG inline con currentColor: el color se hereda, no se fuerza con filter.
+   El contenedor fija el tamaño; el svg solo lo llena. */
+.marca-svg { display: inline-block; flex: none; color: var(--texto); line-height: 0; }
+.marca-svg svg { display: block; width: 100%; height: 100%; }
+
+.marca__escudo { width: 38px; height: 38px; opacity: .92; }
+.marca__label {
+  font-family: var(--mono); font-size: var(--fs-xs); font-weight: 500;
+  letter-spacing: .18em; text-transform: uppercase; color: var(--texto-dim);
+  padding-left: var(--sp-4);
+  border-left: 2px solid var(--marca);
+}
+@media (max-width: 780px) { .marca__label { display: none; } }
+
+/* ---------- Topbar ---------- */
+.topbar {
+  display: flex; align-items: center; gap: var(--sp-5);
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--tinta-2);
+  border-bottom: 1px solid var(--linea);
+  position: sticky; top: 0; z-index: var(--z-sticky);
+}
+
+/* ---------- Encabezado de sección ----------
+   Regla que cruza todo el ancho y separa unidades operativas. */
+.seccion { display: grid; gap: var(--sp-3); }
+.seccion__meta {
+  display: flex; align-items: baseline; gap: var(--sp-4); flex-wrap: wrap;
+  padding-bottom: var(--sp-4);
+  border-bottom: 1px solid var(--linea);
+  font-family: var(--mono); font-size: var(--fs-xs);
+  letter-spacing: .1em; text-transform: uppercase; color: var(--texto-mute);
+  font-variant-numeric: tabular-nums;
+}
+.seccion__dato { color: var(--texto-dim); }
+.seccion__dato strong { color: var(--texto); font-weight: 500; }
+
+/* ---------- Layout ---------- */
+.view {
+  flex: 1; width: 100%; max-width: 1180px; margin: 0 auto;
+  padding-block: var(--sp-6) var(--sp-8);   /* óptico: más abajo que arriba */
+  padding-left: var(--sp-5); padding-right: var(--sp-5);
+}
+.view__titulo {
+  font-family: var(--display);
+  font-size: clamp(26px, 3vw, 42px);
+  line-height: var(--lh-display); letter-spacing: -0.035em; text-transform: uppercase;
+}
+.view__sub { color: var(--texto-dim); font-size: var(--fs-sm); max-width: var(--measure); margin-top: var(--sp-3); }
+
+.grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: var(--sp-4); }
+.grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: var(--sp-3); }
+.row    { display: flex; gap: var(--sp-3); align-items: center; flex-wrap: wrap; }
+.row--fin { align-items: flex-end; }
+.row--arriba { align-items: flex-start; }
+.spacer { flex: 1; }
+.stack  { display: flex; flex-direction: column; gap: var(--sp-5); }
+.stack--junto { gap: var(--sp-3); }
+
+.mt-3 { margin-top: var(--sp-3); }
+.mt-4 { margin-top: var(--sp-4); }
+
+@media (max-width: 860px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+
+/* ---------- Movimiento reducido ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 220ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 160ms !important;
+  }
+}

@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.DS_Store
+*.local
+.vscode/
+
+# Material local que no forma parte del proyecto publicado
+Objetos 3D/
+.claude/
+PROMPTS-CLAUDE-CODE.md
+.agents/
+.claude/
+Claude outputs/
+docs/

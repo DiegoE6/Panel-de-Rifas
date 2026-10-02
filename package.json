@@ -1,0 +1,29 @@
+{
+  "name": "panel-rifa",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Panel de rifa digital: carga de regalos y asistencia, sorteo animado y estadisticas.",
+  "scripts": {
+    "dev": "vite --port 5173",
+    "build": "vite build",
+    "preview": "vite preview --port 5174"
+  },
+  "dependencies": {
+    "@fontsource-variable/outfit": "^5.1.0",
+    "@fontsource/archivo-black": "^5.1.0",
+    "@fontsource/jetbrains-mono": "^5.1.0",
+    "@tsparticles/engine": "^4.4.0",
+    "@tsparticles/slim": "^4.4.0",
+    "@tsparticles/updater-wobble": "^4.4.0",
+    "three": "0.184.0",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+  },
+  "devDependencies": {
+    "vite": "^8.3.0"
+  },
+  "allowScripts": {
+    "esbuild@0.21.5": true,
+    "@tsparticles/engine@4.4.0": true
+  }
+}

@@ -1,0 +1,308 @@
+/* ============================================================
+   PANEL RIFA — fondo "Tinta", tipografía display.
+   Único lugar con presupuesto de espectáculo: se ve una vez por
+   evento. Todo lo demás del panel va por debajo de 300ms.
+   ============================================================ */
+
+.rifa {
+  position: fixed; inset: 0; z-index: var(--z-rifa);
+  display: grid; grid-template-rows: auto 1fr;
+  gap: var(--sp-5);
+  padding: var(--sp-6) var(--sp-7);
+  /* Radial, no lineal plano: la luz viene de arriba y se apaga a las orillas */
+  background: radial-gradient(120% 90% at 50% -12%, var(--tinta-1) 0%, var(--tinta-2) 62%);
+  color: var(--texto);
+  overflow: hidden;
+}
+/* Capa ambiental del tema: detrás de todo, sin capturar clics.
+   Va con `.rifa > .ambiente` y no con `.ambiente` a secas porque la regla
+   `.rifa > *` de abajo tiene la misma especificidad y, al venir después,
+   le ganaba: el lienzo se volvía `relative`, entraba al flujo de la retícula
+   y se comía la primera fila, empujando todo lo demás fuera de pantalla. */
+.rifa > .ambiente {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.rifa > .ambiente canvas { display: block; width: 100%; height: 100%; }
+
+/* Grano: quita la sensación de vector plano.
+   Sin mix-blend-mode a propósito: mezclar una capa a pantalla completa por
+   encima de dos lienzos animados y 130 tarjetas obliga al compositor a
+   recalcular todo cada frame. A esta opacidad el resultado visual es el mismo. */
+.rifa::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  opacity: .035;
+  background-image: var(--grano);
+}
+.rifa > * { position: relative; z-index: var(--z-base); }
+
+/* Pantalla proyectada: nada aquí es texto para seleccionar. Sin esto, un clic
+   en cualquier parte dejaba el punto de inserción parpadeando entre los dígitos
+   de la credencial, y arrastrar resaltaba el nombre del ganador en azul.
+   `caret-color` lo apaga incluso con la navegación por cursor (F7) encendida.
+   Se limita a .rifa: en el admin sí conviene poder copiar de las tablas. */
+.rifa, .rifa * {
+  -webkit-user-select: none;
+  user-select: none;
+  caret-color: transparent;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Alto mínimo = alto de la marca: durante la cuenta se ocultan marca y botón, y
+   sin esto la fila se colapsaba y el centro crecía de golpe (el objeto 3D saltaba). */
+.rifa__top { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-5); min-height: clamp(56px, 7.5vh, 96px); }
+
+/* La marca hereda el color del texto: blanco sobre tinta, sin filter */
+.rifa__logo { --lado: clamp(56px, 7.5vh, 96px); width: var(--lado); height: var(--lado); opacity: .92; }
+
+.rifa__evento {
+  font-family: var(--display);
+  font-size: var(--fs-evento);
+  line-height: .95; letter-spacing: -0.02em; text-transform: uppercase;
+  text-align: right; color: rgba(255,255,255,.88);
+  max-width: 30ch; text-wrap: balance;
+}
+
+.rifa__salir { opacity: 0; transition: opacity var(--d-menu) var(--ease-out); }
+.rifa:hover .rifa__salir, .rifa__salir:focus-visible { opacity: 1; }
+
+.rifa__centro {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  place-items: center;
+  text-align: center;
+  min-height: 0;
+  overflow: hidden;            /* nada se derrama sobre el encabezado */
+}
+.rifa__pie { min-height: 3px; }
+
+/* ---------- Estado inicial ---------- */
+.rifa__listo { display: grid; gap: var(--sp-5); justify-items: center; text-align: center; }
+/* El nombre del evento manda; el resto es subtítulo */
+.rifa__evento-grande {
+  font-family: var(--display);
+  font-size: clamp(34px, 6vw, 104px);
+  line-height: var(--lh-display); letter-spacing: -0.045em; text-transform: uppercase;
+  color: var(--oro); max-width: 20ch; text-wrap: balance;
+}
+.rifa__titulo {
+  font-family: var(--mono); font-size: var(--fs-sm); font-weight: 500;
+  letter-spacing: .2em; text-transform: uppercase; color: var(--texto-dim);
+  margin-bottom: var(--sp-3);
+}
+
+/* ---------- Cuenta regresiva: escudo grande y el número debajo ---------- */
+.cuenta { display: grid; justify-items: center; gap: clamp(var(--sp-4), 3vh, var(--sp-7)); }
+/* Alto fijo: el número y la barra ocupan lo mismo, el escudo no salta al cambiar */
+.cuenta__slot { display: grid; place-items: center; min-height: clamp(90px, 20vh, 280px); width: min(680px, 76vw); }
+.cuenta__escudo {
+  --lado: clamp(140px, 30vh, 340px);
+  width: var(--lado); height: var(--lado);
+  opacity: .95;
+  animation: entra var(--d-rifa-entrada) var(--ease-out) both;
+}
+.cuenta__num {
+  font-family: var(--display);
+  font-size: clamp(80px, 18vh, 260px);
+  line-height: 1; letter-spacing: -0.05em;
+  font-variant-numeric: tabular-nums;
+  color: var(--oro);
+}
+/* Un latido por segundo: nunca desde scale(0) */
+.cuenta__num.late { animation: latido 900ms var(--ease-out); }
+@keyframes latido {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ---------- Barra de generación ----------
+   Va en linear: el progreso no se suaviza, mentiría sobre cuánto falta. */
+.carga { display: grid; gap: var(--sp-4); width: 100%; justify-items: center; }
+.carga__cifra {
+  font-family: var(--display);
+  font-size: clamp(40px, 7vh, 96px);
+  line-height: 1; letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;   /* los digitos no bailan al contar */
+  color: var(--oro);
+}
+.carga__signo { font-size: .45em; margin-left: .12em; opacity: .7; }
+.carga__pista { height: 4px; width: 100%; background: rgba(255,255,255,.12); overflow: hidden; }
+.carga__fill {
+  height: 100%; width: 100%; background: var(--oro);
+  transform: scaleX(0); transform-origin: left center;
+}
+.carga__label {
+  font-family: var(--mono); font-size: var(--fs-md); font-weight: 500;
+  letter-spacing: .22em; text-transform: uppercase; color: var(--texto-dim);
+  text-align: center;
+}
+
+/* ---------- Rifa con objeto 3D: dos columnas fijas ----------
+   Solo con temas que traen `escena3d`. La izquierda (nombre + objeto) se arma
+   una vez y no se mueve en ninguna pantalla; la derecha es #centro, donde
+   corren inicio, cuenta, carga y ganadores. El objeto y el texto nunca se
+   enciman: cada uno tiene su columna.
+
+   --lado3d: ancho de la izquierda. Si la lista se aprieta, se baja esto antes
+   que la tipografía de los nombres: lo que se tiene que leer es la lista. */
+.rifa--3d {
+  --lado3d: 34%;
+  grid-template-rows: minmax(0, 1fr);   /* la barra superior flota: las columnas usan todo el alto */
+}
+/* Sin marca ni nombre arriba: el objeto es la identidad y el nombre ya está
+   en la columna izquierda. Solo queda el botón de salir, flotando. */
+.rifa.rifa--3d > .rifa__top {
+  position: absolute; top: var(--sp-6); right: var(--sp-7); z-index: 2;
+  min-height: 0;
+}
+.rifa--3d .rifa__logo,
+.rifa--3d .rifa__evento { display: none; }
+
+.rifa__cuerpo {
+  display: grid;
+  grid-template-columns: var(--lado3d) minmax(0, 1fr);
+  gap: var(--sp-7);
+  min-height: 0;
+}
+.rifa__lado {
+  display: grid; grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--sp-4);
+  min-height: 0;
+  container-type: inline-size;          /* el nombre se mide contra la columna: cqw */
+}
+.rifa__lado-nombre {
+  font-family: var(--display);
+  font-size: clamp(28px, 13cqw, 120px);
+  line-height: var(--lh-display); letter-spacing: -0.045em; text-transform: uppercase;
+  color: var(--oro); text-align: center; text-wrap: balance; overflow-wrap: anywhere;
+  text-shadow: 0 2px 28px rgba(8, 11, 18, .6);
+}
+.rifa__hueco3d { position: relative; min-height: 0; }
+.escena3d { position: absolute; inset: 0; }
+.escena3d canvas { display: block; width: 100%; height: 100%; }
+
+/* La columna derecha es el contenedor de la lista. Los tamaños de la tarjeta
+   en tokens.css van en vw (ancho de VENTANA): en una columna del ~66% se
+   quedaban grandes. Aquí se redefinen contra la columna (cqw), calibrados
+   para tocar el mismo tope en 1080p. */
+.rifa--3d .rifa__centro {
+  container-type: inline-size;
+  --fs-regalo: clamp(22px, 4.6cqw, 60px);
+  --fs-nombre: clamp(18px, 3.3cqw, 40px);
+  --fs-cred:   clamp(14px, 2.1cqw, 26px);
+}
+.rifa--3d .cuenta__slot { width: min(680px, 90cqw); }
+
+/* ---------- Clon que vuela a la esquina ----------
+   Fuera del contenedor central, que tiene overflow oculto y lo recortaría. */
+.escudo-vuelo {
+  position: fixed; z-index: var(--z-flash); pointer-events: none;
+  opacity: .95;
+  transform-origin: center center;
+}
+
+/* ---------- Fin de la lista ---------- */
+.fin-lista {
+  display: grid; place-items: center; gap: var(--sp-4);
+  padding: var(--sp-7) 0 var(--sp-8);
+  margin-top: var(--sp-4);
+  border-top: 2px solid var(--marca);
+}
+.fin-lista__texto {
+  font-family: var(--mono); font-size: var(--fs-lg); font-weight: 700;
+  letter-spacing: .22em; text-transform: uppercase;
+  color: var(--oro);
+}
+.fin-lista__sub {
+  font-family: var(--mono); font-size: var(--fs-sm);
+  letter-spacing: .18em; text-transform: uppercase; color: var(--texto-dim);
+}
+
+/* ---------- Barra del ciclo: cuánto falta para volver a empezar ---------- */
+.ciclo { padding-top: var(--sp-4); }
+.ciclo__pista { height: 2px; background: rgba(255,255,255,.1); overflow: hidden; }
+.ciclo__fill {
+  height: 100%; width: 100%; background: var(--marca-2);
+  transform: scaleX(0); transform-origin: left center;
+}
+
+/* ---------- Tabla de ganadores ---------- */
+/* Ocupa el alto disponible y lo reparte: nada de alto natural. */
+.ganadores {
+  width: min(1280px, 100%);
+  align-self: stretch; justify-self: center;
+  height: 100%; min-height: 0;
+  display: grid; grid-template-rows: minmax(0, 1fr) auto;
+}
+
+/* Ventana del recorrido, con desvanecido arriba y abajo */
+.ganadores__viewport {
+  position: relative; overflow: hidden;
+  height: 100%; min-height: 0;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 5%, #000 95%, transparent 100%);
+          mask-image: linear-gradient(to bottom, transparent 0, #000 5%, #000 95%, transparent 100%);
+}
+.ganadores__lista { display: grid; gap: var(--sp-3); }
+
+/* El recorrido se arma desde JS con la Web Animations API: las pausas de los
+   extremos tienen que durar segundos fijos y los offsets se calculan en
+   tiempo real. Ver tablaGanadores.js. */
+
+/* El color de marca no es el fondo: es el filo de cada tarjeta */
+.premio {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center; gap: var(--sp-5);
+  padding: var(--sp-4) var(--sp-6);
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.09);
+  border-left: 2px solid var(--marca);
+  border-radius: var(--r-xl);
+  text-align: left;
+  animation: entra 500ms var(--ease-out) both;
+}
+/* Fuera de pantalla al revelar: no necesita animación de entrada */
+.premio--estatico { animation: none; }
+.premio__texto { min-width: 0; }
+.premio__regalo {
+  font-family: var(--display);
+  font-size: var(--fs-regalo);
+  line-height: var(--lh-display); letter-spacing: -0.035em; text-transform: uppercase;
+  color: var(--oro); overflow-wrap: anywhere;
+}
+/* Caja normal: conserva los acentos y ocupa menos ancho que en mayúsculas */
+.premio__nombre {
+  font-family: var(--display);
+  font-size: var(--fs-nombre);
+  line-height: 1; letter-spacing: -0.03em;
+  margin-top: var(--sp-2);
+  color: rgba(255,255,255,.95); overflow-wrap: anywhere;
+}
+.premio__credencial {
+  font-family: var(--mono); font-weight: 700; font-variant-numeric: tabular-nums;
+  font-size: var(--fs-cred); letter-spacing: .08em;
+  padding: var(--sp-2) var(--sp-4);
+  background: rgba(255,255,255,.09); border-radius: var(--r-sm);
+  white-space: nowrap;
+}
+
+@keyframes entra {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Movimiento reducido ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .premio, .ganadores__titulo { animation: aparece 240ms ease both; }
+  .cuenta__num.late { animation: aparece 240ms ease; }
+  /* Sin recorrido automático: se lee con el scroll de siempre */
+  .ganadores__viewport { overflow-y: auto; }
+  @keyframes aparece { from { opacity: 0 } to { opacity: 1 } }
+}
+
+@media (max-width: 900px) {
+  .rifa { padding: var(--sp-4); }
+  .premio { grid-template-columns: minmax(0,1fr); gap: var(--sp-3); padding: var(--sp-4); }
+  .premio__credencial { justify-self: start; }
+}
